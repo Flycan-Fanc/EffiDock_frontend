@@ -1,71 +1,25 @@
 import type { TodoItem } from "@/modules/todo/types/todo";
-
-const DATABASE_NAME = "effidock-web-mvp";
-const DATABASE_VERSION = 2;
-const TODO_STORE_NAME = "todo-items";
-const DIARY_STORE_NAME = "diary-entries";
-
-function ensureObjectStores(database: IDBDatabase) {
-  if (!database.objectStoreNames.contains(TODO_STORE_NAME)) {
-    database.createObjectStore(TODO_STORE_NAME, { keyPath: "id" });
-  }
-
-  if (!database.objectStoreNames.contains(DIARY_STORE_NAME)) {
-    database.createObjectStore(DIARY_STORE_NAME, { keyPath: "id" });
-  }
-}
-
-function openTodoDatabase() {
-  return new Promise<IDBDatabase>((resolve, reject) => {
-    const request = window.indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-
-    request.onupgradeneeded = () => {
-      ensureObjectStores(request.result);
-    };
-
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("Failed to open IndexedDB."));
-  });
-}
-
-async function withStore<T>(
-  mode: IDBTransactionMode,
-  runner: (store: IDBObjectStore) => Promise<T>,
-) {
-  const database = await openTodoDatabase();
-
-  try {
-    const transaction = database.transaction(TODO_STORE_NAME, mode);
-    const store = transaction.objectStore(TODO_STORE_NAME);
-
-    return await runner(store);
-  } finally {
-    database.close();
-  }
-}
-
-function promisifyRequest<T>(request: IDBRequest<T>) {
-  return new Promise<T>((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed."));
-  });
-}
+import {
+  EFFIDOCK_STORE_NAMES,
+  promisifyRequest,
+  withEffiDockStore,
+} from "@/shared/lib/storage/effidock-database";
 
 export async function listTodos() {
-  return withStore("readonly", async (store) => {
+  return withEffiDockStore(EFFIDOCK_STORE_NAMES.todo, "readonly", async (store) => {
     const records = await promisifyRequest(store.getAll() as IDBRequest<TodoItem[]>);
     return records;
   });
 }
 
 export async function saveTodo(todo: TodoItem) {
-  return withStore("readwrite", async (store) => {
+  return withEffiDockStore(EFFIDOCK_STORE_NAMES.todo, "readwrite", async (store) => {
     await promisifyRequest(store.put(todo));
   });
 }
 
 export async function removeTodo(todoId: string) {
-  return withStore("readwrite", async (store) => {
+  return withEffiDockStore(EFFIDOCK_STORE_NAMES.todo, "readwrite", async (store) => {
     await promisifyRequest(store.delete(todoId));
   });
 }
