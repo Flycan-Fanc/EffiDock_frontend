@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { useTagStore } from "@/features/tags/stores/use-tag-store";
 import {
   InspirationEditorCard,
   type InspirationFormState,
@@ -14,6 +15,7 @@ import { useScrollToEditor } from "@/shared/hooks/use-scroll-to-editor";
 const emptyInspirationForm: InspirationFormState = {
   title: "",
   content: "",
+  tagIds: [],
 };
 
 export function InspirationPage() {
@@ -34,6 +36,13 @@ export function InspirationPage() {
     resetFilters,
     getFilteredItems,
   } = useInspirationStore();
+  const {
+    items: tags,
+    hydrated: tagsHydrated,
+    hydrate: hydrateTags,
+    createTag,
+    getTagLabel,
+  } = useTagStore();
 
   const [formState, setFormState] = useState<InspirationFormState>(emptyInspirationForm);
   const [editingItem, setEditingItem] = useState<InspirationItem | null>(null);
@@ -47,12 +56,15 @@ export function InspirationPage() {
     if (!hydrated) {
       void hydrate();
     }
-  }, [hydrate, hydrated]);
+    if (!tagsHydrated) {
+      void hydrateTags();
+    }
+  }, [hydrate, hydrated, hydrateTags, tagsHydrated]);
 
   const visibleItems = getFilteredItems();
   const favoriteCount = items.filter((item) => item.isFavorite).length;
 
-  const handleFieldChange = (field: keyof InspirationFormState, value: string) => {
+  const handleFieldChange = (field: keyof InspirationFormState, value: string | string[]) => {
     setFormState((currentState) => ({
       ...currentState,
       [field]: value,
@@ -81,6 +93,7 @@ export function InspirationPage() {
     setFormState({
       title: item.title,
       content: item.content,
+      tagIds: item.tagIds,
     });
     setEditScrollTrigger((currentValue) => currentValue + 1);
   };
@@ -105,8 +118,10 @@ export function InspirationPage() {
         containerRef={containerRef}
         editingItem={editingItem ?? undefined}
         mode={editingItem ? "edit" : "create"}
+        availableTags={tags}
         onCancel={editingItem ? handleCancelEdit : undefined}
         onChange={handleFieldChange}
+        onCreateTag={createTag}
         onSubmit={handleSubmit}
         submitting={submitting}
         titleInputRef={focusTargetRef}
@@ -120,6 +135,7 @@ export function InspirationPage() {
       ) : null}
 
       <InspirationFiltersBar
+        availableTags={tags}
         filters={filters}
         onChange={(patch) => setFilters(patch)}
         onReset={resetFilters}
@@ -137,6 +153,7 @@ export function InspirationPage() {
         onDelete={(itemId) => void handleDelete(itemId)}
         onEdit={handleEdit}
         onToggleFavorite={(itemId) => void toggleFavorite(itemId)}
+        resolveTagLabel={getTagLabel}
         totalCount={items.length}
       />
     </section>

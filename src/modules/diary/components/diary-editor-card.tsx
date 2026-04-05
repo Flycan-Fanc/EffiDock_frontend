@@ -1,6 +1,8 @@
 import type { ChangeEvent, FormEvent, RefObject } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagInputField } from "@/features/tags/components/tag-input-field";
+import type { TagItem } from "@/features/tags/types/tag";
 import { Button } from "@/shared/components/ui/button";
 import type { CreateDiaryEntryInput, DiaryEntry } from "@/modules/diary/types/diary";
 
@@ -11,9 +13,11 @@ type DiaryEditorCardProps = {
   value: DiaryFormState;
   submitting: boolean;
   editingEntry?: DiaryEntry;
+  availableTags: TagItem[];
   containerRef?: RefObject<HTMLElement | null>;
   titleInputRef?: RefObject<HTMLInputElement | null>;
-  onChange: (field: keyof DiaryFormState, value: string) => void;
+  onChange: (field: keyof DiaryFormState, value: string | string[]) => void;
+  onCreateTag: (label: string) => Promise<TagItem | null>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel?: () => void;
 };
@@ -23,9 +27,11 @@ export function DiaryEditorCard({
   value,
   submitting,
   editingEntry,
+  availableTags,
   containerRef,
   titleInputRef,
   onChange,
+  onCreateTag,
   onSubmit,
   onCancel,
 }: DiaryEditorCardProps) {
@@ -86,6 +92,13 @@ export function DiaryEditorCard({
             value={value.content}
           />
         </label>
+
+        <TagInputField
+          availableTags={availableTags}
+          onChange={(tagIds) => onChange("tagIds", tagIds)}
+          onCreateTag={onCreateTag}
+          value={value.tagIds}
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           <Button disabled={submitting} type="submit">

@@ -1,15 +1,18 @@
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagFiltersField } from "@/features/tags/components/tag-filters-field";
+import type { TagItem } from "@/features/tags/types/tag";
 import type { DiaryFilters, DiarySortMode } from "@/modules/diary/types/diary";
 
 type DiaryFiltersBarProps = {
   filters: DiaryFilters;
+  availableTags: TagItem[];
   onChange: (patch: Partial<DiaryFilters>) => void;
   onReset: () => void;
 };
 
 const sortOptions: DiarySortMode[] = ["entry-desc", "entry-asc", "updated-desc"];
 
-export function DiaryFiltersBar({ filters, onChange, onReset }: DiaryFiltersBarProps) {
+export function DiaryFiltersBar({ filters, availableTags, onChange, onReset }: DiaryFiltersBarProps) {
   const { t } = useI18n();
 
   return (
@@ -32,7 +35,7 @@ export function DiaryFiltersBar({ filters, onChange, onReset }: DiaryFiltersBarP
         </button>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-[1.4fr_1fr]">
+      <div className="mt-5 grid gap-4 md:grid-cols-[1.4fr_1fr_1fr]">
         <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">{t("diary.filters.search")}</span>
           <input
@@ -42,6 +45,12 @@ export function DiaryFiltersBar({ filters, onChange, onReset }: DiaryFiltersBarP
             value={filters.query}
           />
         </label>
+
+        <TagFiltersField
+          availableTags={availableTags}
+          onChange={(tagId) => onChange({ tagId })}
+          value={filters.tagId}
+        />
 
         <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">{t("diary.filters.sort")}</span>

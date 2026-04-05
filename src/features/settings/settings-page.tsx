@@ -1,10 +1,17 @@
 import { useI18n } from "@/core/i18n/use-i18n";
 import type { LocalePreference } from "@/core/i18n/types";
+import { TagManagementCard } from "@/features/tags/components/tag-management-card";
+import { useDiaryStore } from "@/modules/diary/stores/use-diary-store";
+import { useInspirationStore } from "@/modules/inspiration/stores/use-inspiration-store";
+import { useTodoStore } from "@/modules/todo/stores/use-todo-store";
 
 const localeOptions: LocalePreference[] = ["system", "zh-CN", "en-US", "ja-JP"];
 
 export function SettingsPage() {
   const { locale, preference, setLocalePreference, t } = useI18n();
+  const removeTodoTag = useTodoStore((state) => state.removeTag);
+  const removeDiaryTag = useDiaryStore((state) => state.removeTag);
+  const removeInspirationTag = useInspirationStore((state) => state.removeTag);
 
   return (
     <section className="space-y-6">
@@ -60,6 +67,16 @@ export function SettingsPage() {
             {t("settings.ai.description")}
           </p>
         </article>
+
+        <TagManagementCard
+          onDeleteTag={async (tagId) => {
+            await Promise.all([
+              removeTodoTag(tagId),
+              removeDiaryTag(tagId),
+              removeInspirationTag(tagId),
+            ]);
+          }}
+        />
       </div>
     </section>
   );

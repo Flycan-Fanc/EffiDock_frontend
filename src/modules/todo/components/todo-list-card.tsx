@@ -1,6 +1,7 @@
 import { PencilLine, Trash2 } from "lucide-react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagBadgeList } from "@/features/tags/components/tag-badge-list";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -16,6 +17,7 @@ type TodoListCardProps = {
   items: TodoItem[];
   totalCount: number;
   completedCount: number;
+  resolveTagLabel: (tagId: string) => string | undefined;
   onToggle: (todoId: string) => void;
   onEdit: (todo: TodoItem) => void;
   onDelete: (todoId: string) => void;
@@ -25,6 +27,7 @@ export function TodoListCard({
   items,
   totalCount,
   completedCount,
+  resolveTagLabel,
   onToggle,
   onEdit,
   onDelete,
@@ -97,6 +100,10 @@ export function TodoListCard({
                   {todo.notes ? (
                     <p className="mt-2 text-sm leading-7 text-slate-500">{todo.notes}</p>
                   ) : null}
+
+                  <div className="mt-3">
+                    <TagBadgeList resolveTagLabel={resolveTagLabel} tagIds={todo.tagIds} />
+                  </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
                     <span className={cn("font-medium", getDueTone(todo))}>

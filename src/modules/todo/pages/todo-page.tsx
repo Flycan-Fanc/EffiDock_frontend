@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { useTagStore } from "@/features/tags/stores/use-tag-store";
 import { TodoEditorCard, type TodoFormState } from "@/modules/todo/components/todo-editor-card";
 import { TodoFiltersBar } from "@/modules/todo/components/todo-filters-bar";
 import { TodoListCard } from "@/modules/todo/components/todo-list-card";
@@ -11,6 +12,7 @@ import { useScrollToEditor } from "@/shared/hooks/use-scroll-to-editor";
 const emptyTodoForm: TodoFormState = {
   title: "",
   notes: "",
+  tagIds: [],
   priority: "medium",
   dueDate: null,
 };
@@ -33,6 +35,13 @@ export function TodoPage() {
     resetFilters,
     getFilteredTodos,
   } = useTodoStore();
+  const {
+    items: tags,
+    hydrated: tagsHydrated,
+    hydrate: hydrateTags,
+    createTag,
+    getTagLabel,
+  } = useTagStore();
 
   const [formState, setFormState] = useState<TodoFormState>(emptyTodoForm);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
@@ -46,12 +55,15 @@ export function TodoPage() {
     if (!hydrated) {
       void hydrate();
     }
-  }, [hydrate, hydrated]);
+    if (!tagsHydrated) {
+      void hydrateTags();
+    }
+  }, [hydrate, hydrated, hydrateTags, tagsHydrated]);
 
   const visibleItems = getFilteredTodos();
   const completedCount = items.filter((item) => item.completed).length;
 
-  const handleFieldChange = (field: keyof TodoFormState, value: string) => {
+  const handleFieldChange = (field: keyof TodoFormState, value: string | string[]) => {
     setFormState((currentState) => ({
       ...currentState,
       [field]: field === "dueDate" ? value || null : value,
@@ -80,6 +92,7 @@ export function TodoPage() {
     setFormState({
       title: todo.title,
       notes: todo.notes,
+      tagIds: todo.tagIds,
       priority: todo.priority,
       dueDate: todo.dueDate,
     });
@@ -106,8 +119,10 @@ export function TodoPage() {
         containerRef={containerRef}
         editingTodo={editingTodo ?? undefined}
         mode={editingTodo ? "edit" : "create"}
+        availableTags={tags}
         onCancel={editingTodo ? handleCancelEdit : undefined}
         onChange={handleFieldChange}
+        onCreateTag={createTag}
         onSubmit={handleSubmit}
         submitting={submitting}
         titleInputRef={focusTargetRef}
@@ -120,7 +135,12 @@ export function TodoPage() {
         </div>
       ) : null}
 
-      <TodoFiltersBar filters={filters} onChange={(patch) => setFilters(patch)} onReset={resetFilters} />
+      <TodoFiltersBar
+        availableTags={tags}
+        filters={filters}
+        onChange={(patch) => setFilters(patch)}
+        onReset={resetFilters}
+      />
 
       {loading && !hydrated ? (
         <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-10 text-sm text-slate-500">
@@ -134,6 +154,7 @@ export function TodoPage() {
         onDelete={(todoId) => void handleDelete(todoId)}
         onEdit={handleEdit}
         onToggle={(todoId) => void toggleTodo(todoId)}
+        resolveTagLabel={getTagLabel}
         totalCount={items.length}
       />
     </section>

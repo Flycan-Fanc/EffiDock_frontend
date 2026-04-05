@@ -5,6 +5,7 @@ export type DiaryEntry = {
   title: string;
   content: string;
   entryDate: string;
+  tagIds: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -13,6 +14,7 @@ export type CreateDiaryEntryInput = {
   title: string;
   content: string;
   entryDate: string;
+  tagIds: string[];
 };
 
 export type UpdateDiaryEntryInput = CreateDiaryEntryInput & {
@@ -21,5 +23,6 @@ export type UpdateDiaryEntryInput = CreateDiaryEntryInput & {
 
 export type DiaryFilters = {
   query: string;
+  tagId: string;
   sort: DiarySortMode;
 };

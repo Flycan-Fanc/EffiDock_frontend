@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { normalizeTagIds } from "@/features/tags/lib/tag-utils";
 import {
   createDiaryEntryId,
   defaultDiaryFilters,
@@ -30,6 +31,7 @@ type DiaryStore = {
   createEntry: (input: CreateDiaryEntryInput) => Promise<boolean>;
   updateEntry: (input: UpdateDiaryEntryInput) => Promise<boolean>;
   deleteEntry: (entryId: string) => Promise<void>;
+  removeTag: (tagId: string) => Promise<void>;
   clearError: () => void;
   setFilters: (patch: Partial<DiaryFilters>) => void;
   resetFilters: () => void;
@@ -91,6 +93,7 @@ export const useDiaryStore = create<DiaryStore>((set, get) => ({
       title,
       content,
       entryDate,
+      tagIds: normalizeTagIds(input.tagIds),
       createdAt: timestamp,
       updatedAt: timestamp,
     };
@@ -136,6 +139,7 @@ export const useDiaryStore = create<DiaryStore>((set, get) => ({
       title,
       content,
       entryDate,
+      tagIds: normalizeTagIds(input.tagIds),
       updatedAt: new Date().toISOString(),
     };
 
@@ -157,6 +161,30 @@ export const useDiaryStore = create<DiaryStore>((set, get) => ({
       set((state) => ({
         items: state.items.filter((item) => item.id !== entryId),
         error: null,
+      }));
+    } catch (error) {
+      set({ error: getStoreErrorMessage(error) });
+    }
+  },
+  removeTag: async (tagId) => {
+    const affectedItems = get().items.filter((item) => item.tagIds.includes(tagId));
+
+    if (affectedItems.length === 0) {
+      return;
+    }
+
+    const nextItems = affectedItems.map((item) => ({
+      ...item,
+      tagIds: item.tagIds.filter((currentTagId) => currentTagId !== tagId),
+      updatedAt: new Date().toISOString(),
+    }));
+
+    try {
+      await Promise.all(nextItems.map((item) => saveDiaryEntry(item)));
+      set((state) => ({
+        items: state.items.map(
+          (item) => nextItems.find((nextItem) => nextItem.id === item.id) ?? item,
+        ),
       }));
     } catch (error) {
       set({ error: getStoreErrorMessage(error) });

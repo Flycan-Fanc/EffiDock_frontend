@@ -1,6 +1,8 @@
 import type { ChangeEvent, FormEvent, RefObject } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagInputField } from "@/features/tags/components/tag-input-field";
+import type { TagItem } from "@/features/tags/types/tag";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { getPriorityLabel } from "@/modules/todo/lib/todo-utils";
@@ -13,9 +15,11 @@ type TodoEditorCardProps = {
   value: TodoFormState;
   submitting: boolean;
   editingTodo?: TodoItem;
+  availableTags: TagItem[];
   containerRef?: RefObject<HTMLElement | null>;
   titleInputRef?: RefObject<HTMLInputElement | null>;
-  onChange: (field: keyof TodoFormState, value: string) => void;
+  onChange: (field: keyof TodoFormState, value: string | string[]) => void;
+  onCreateTag: (label: string) => Promise<TagItem | null>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel?: () => void;
 };
@@ -27,9 +31,11 @@ export function TodoEditorCard({
   value,
   submitting,
   editingTodo,
+  availableTags,
   containerRef,
   titleInputRef,
   onChange,
+  onCreateTag,
   onSubmit,
   onCancel,
 }: TodoEditorCardProps) {
@@ -117,6 +123,13 @@ export function TodoEditorCard({
             />
           </label>
         </div>
+
+        <TagInputField
+          availableTags={availableTags}
+          onChange={(tagIds) => onChange("tagIds", tagIds)}
+          onCreateTag={onCreateTag}
+          value={value.tagIds}
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           <Button disabled={submitting} type="submit">

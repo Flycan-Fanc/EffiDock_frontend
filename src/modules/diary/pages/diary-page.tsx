@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { useTagStore } from "@/features/tags/stores/use-tag-store";
 import {
   DiaryEditorCard,
   type DiaryFormState,
@@ -15,6 +16,7 @@ const emptyDiaryForm: DiaryFormState = {
   title: "",
   content: "",
   entryDate: new Date().toISOString().slice(0, 10),
+  tagIds: [],
 };
 
 export function DiaryPage() {
@@ -34,6 +36,13 @@ export function DiaryPage() {
     resetFilters,
     getFilteredEntries,
   } = useDiaryStore();
+  const {
+    items: tags,
+    hydrated: tagsHydrated,
+    hydrate: hydrateTags,
+    createTag,
+    getTagLabel,
+  } = useTagStore();
 
   const [formState, setFormState] = useState<DiaryFormState>(emptyDiaryForm);
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
@@ -47,11 +56,14 @@ export function DiaryPage() {
     if (!hydrated) {
       void hydrate();
     }
-  }, [hydrate, hydrated]);
+    if (!tagsHydrated) {
+      void hydrateTags();
+    }
+  }, [hydrate, hydrated, hydrateTags, tagsHydrated]);
 
   const visibleItems = getFilteredEntries();
 
-  const handleFieldChange = (field: keyof DiaryFormState, value: string) => {
+  const handleFieldChange = (field: keyof DiaryFormState, value: string | string[]) => {
     setFormState((currentState) => ({
       ...currentState,
       [field]: value,
@@ -81,6 +93,7 @@ export function DiaryPage() {
       title: entry.title,
       content: entry.content,
       entryDate: entry.entryDate,
+      tagIds: entry.tagIds,
     });
     setEditScrollTrigger((currentValue) => currentValue + 1);
   };
@@ -105,8 +118,10 @@ export function DiaryPage() {
         containerRef={containerRef}
         editingEntry={editingEntry ?? undefined}
         mode={editingEntry ? "edit" : "create"}
+        availableTags={tags}
         onCancel={editingEntry ? handleCancelEdit : undefined}
         onChange={handleFieldChange}
+        onCreateTag={createTag}
         onSubmit={handleSubmit}
         submitting={submitting}
         titleInputRef={focusTargetRef}
@@ -119,7 +134,12 @@ export function DiaryPage() {
         </div>
       ) : null}
 
-      <DiaryFiltersBar filters={filters} onChange={(patch) => setFilters(patch)} onReset={resetFilters} />
+      <DiaryFiltersBar
+        availableTags={tags}
+        filters={filters}
+        onChange={(patch) => setFilters(patch)}
+        onReset={resetFilters}
+      />
 
       {loading && !hydrated ? (
         <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-10 text-sm text-slate-500">
@@ -131,6 +151,7 @@ export function DiaryPage() {
         items={visibleItems}
         onDelete={(entryId) => void handleDelete(entryId)}
         onEdit={handleEdit}
+        resolveTagLabel={getTagLabel}
         totalCount={items.length}
       />
     </section>

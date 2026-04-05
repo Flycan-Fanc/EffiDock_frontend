@@ -1,6 +1,8 @@
 import type { ChangeEvent, FormEvent, RefObject } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagInputField } from "@/features/tags/components/tag-input-field";
+import type { TagItem } from "@/features/tags/types/tag";
 import type { CreateInspirationInput, InspirationItem } from "@/modules/inspiration/types/inspiration";
 import { Button } from "@/shared/components/ui/button";
 
@@ -11,9 +13,11 @@ type InspirationEditorCardProps = {
   value: InspirationFormState;
   submitting: boolean;
   editingItem?: InspirationItem;
+  availableTags: TagItem[];
   containerRef?: RefObject<HTMLElement | null>;
   titleInputRef?: RefObject<HTMLInputElement | null>;
-  onChange: (field: keyof InspirationFormState, value: string) => void;
+  onChange: (field: keyof InspirationFormState, value: string | string[]) => void;
+  onCreateTag: (label: string) => Promise<TagItem | null>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel?: () => void;
 };
@@ -23,9 +27,11 @@ export function InspirationEditorCard({
   value,
   submitting,
   editingItem,
+  availableTags,
   containerRef,
   titleInputRef,
   onChange,
+  onCreateTag,
   onSubmit,
   onCancel,
 }: InspirationEditorCardProps) {
@@ -78,6 +84,13 @@ export function InspirationEditorCard({
             value={value.content}
           />
         </label>
+
+        <TagInputField
+          availableTags={availableTags}
+          onChange={(tagIds) => onChange("tagIds", tagIds)}
+          onCreateTag={onCreateTag}
+          value={value.tagIds}
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           <Button disabled={submitting} type="submit">

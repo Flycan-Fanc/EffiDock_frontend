@@ -1,6 +1,7 @@
 import { Heart, PencilLine, Trash2 } from "lucide-react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagBadgeList } from "@/features/tags/components/tag-badge-list";
 import { formatInspirationTimestamp } from "@/modules/inspiration/lib/inspiration-utils";
 import type { InspirationItem } from "@/modules/inspiration/types/inspiration";
 import { Button } from "@/shared/components/ui/button";
@@ -10,6 +11,7 @@ type InspirationListCardProps = {
   items: InspirationItem[];
   totalCount: number;
   favoriteCount: number;
+  resolveTagLabel: (tagId: string) => string | undefined;
   onToggleFavorite: (itemId: string) => void;
   onEdit: (item: InspirationItem) => void;
   onDelete: (itemId: string) => void;
@@ -19,6 +21,7 @@ export function InspirationListCard({
   items,
   totalCount,
   favoriteCount,
+  resolveTagLabel,
   onToggleFavorite,
   onEdit,
   onDelete,
@@ -75,6 +78,10 @@ export function InspirationListCard({
                 ) : (
                   <p className="mt-3 text-sm italic text-slate-400">{t("inspiration.list.emptyContent")}</p>
                 )}
+
+                <div className="mt-3">
+                  <TagBadgeList resolveTagLabel={resolveTagLabel} tagIds={item.tagIds} />
+                </div>
 
                 <p className="mt-4 text-sm text-slate-500">
                   {t("inspiration.list.updated", {

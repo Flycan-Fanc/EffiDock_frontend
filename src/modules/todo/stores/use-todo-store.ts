@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { normalizeTagIds } from "@/features/tags/lib/tag-utils";
 import {
   createTodoId,
   defaultTodoFilters,
@@ -22,6 +23,7 @@ type TodoStore = {
   updateTodo: (input: UpdateTodoInput) => Promise<boolean>;
   toggleTodo: (todoId: string) => Promise<void>;
   deleteTodo: (todoId: string) => Promise<void>;
+  removeTag: (tagId: string) => Promise<void>;
   clearError: () => void;
   setFilters: (patch: Partial<TodoFilters>) => void;
   resetFilters: () => void;
@@ -70,6 +72,7 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
       id: createTodoId(),
       title,
       notes: normalizeTodoText(input.notes),
+      tagIds: normalizeTagIds(input.tagIds),
       completed: false,
       priority: input.priority,
       dueDate: normalizeTodoDate(input.dueDate),
@@ -105,6 +108,7 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
       ...targetTodo,
       title,
       notes: normalizeTodoText(input.notes),
+      tagIds: normalizeTagIds(input.tagIds),
       priority: input.priority,
       dueDate: normalizeTodoDate(input.dueDate),
       updatedAt: new Date().toISOString(),
@@ -151,6 +155,30 @@ export const useTodoStore = create<TodoStore>((set, get) => ({
       set((state) => ({
         items: state.items.filter((item) => item.id !== todoId),
         error: null,
+      }));
+    } catch (error) {
+      set({ error: getStoreErrorMessage(error) });
+    }
+  },
+  removeTag: async (tagId) => {
+    const affectedItems = get().items.filter((item) => item.tagIds.includes(tagId));
+
+    if (affectedItems.length === 0) {
+      return;
+    }
+
+    const nextItems = affectedItems.map((item) => ({
+      ...item,
+      tagIds: item.tagIds.filter((currentTagId) => currentTagId !== tagId),
+      updatedAt: new Date().toISOString(),
+    }));
+
+    try {
+      await Promise.all(nextItems.map((item) => saveTodo(item)));
+      set((state) => ({
+        items: state.items.map(
+          (item) => nextItems.find((nextItem) => nextItem.id === item.id) ?? item,
+        ),
       }));
     } catch (error) {
       set({ error: getStoreErrorMessage(error) });

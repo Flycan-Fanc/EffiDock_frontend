@@ -1,8 +1,10 @@
 import type { SupportedLocale } from "@/core/i18n/types";
+import { normalizeTagIds } from "@/features/tags/lib/tag-utils";
 import type { DiaryEntry, DiaryFilters, DiarySortMode } from "@/modules/diary/types/diary";
 
 export const defaultDiaryFilters: DiaryFilters = {
   query: "",
+  tagId: "all",
   sort: "entry-desc",
 };
 
@@ -50,6 +52,12 @@ export function filterDiaryEntries(items: DiaryEntry[], filters: DiaryFilters) {
   const normalizedQuery = filters.query.trim().toLowerCase();
 
   return items.filter((entry) => {
+    const tagIds = normalizeTagIds(entry.tagIds ?? []);
+
+    if (filters.tagId !== "all" && !tagIds.includes(filters.tagId)) {
+      return false;
+    }
+
     if (!normalizedQuery) {
       return true;
     }

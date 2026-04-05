@@ -12,6 +12,7 @@ export type TodoItem = {
   id: string;
   title: string;
   notes: string;
+  tagIds: string[];
   completed: boolean;
   priority: TodoPriority;
   dueDate: string | null;
@@ -22,6 +23,7 @@ export type TodoItem = {
 export type CreateTodoInput = {
   title: string;
   notes: string;
+  tagIds: string[];
   priority: TodoPriority;
   dueDate: string | null;
 };
@@ -32,6 +34,7 @@ export type UpdateTodoInput = CreateTodoInput & {
 
 export type TodoFilters = {
   query: string;
+  tagId: string;
   status: TodoStatusFilter;
   priority: TodoPriorityFilter;
   due: TodoDueFilter;

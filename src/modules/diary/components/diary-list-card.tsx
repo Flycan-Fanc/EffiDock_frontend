@@ -1,6 +1,7 @@
 import { PencilLine, Trash2 } from "lucide-react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
+import { TagBadgeList } from "@/features/tags/components/tag-badge-list";
 import {
   formatDiaryEntryDate,
   formatDiaryUpdatedAt,
@@ -11,11 +12,18 @@ import { Button } from "@/shared/components/ui/button";
 type DiaryListCardProps = {
   items: DiaryEntry[];
   totalCount: number;
+  resolveTagLabel: (tagId: string) => string | undefined;
   onEdit: (entry: DiaryEntry) => void;
   onDelete: (entryId: string) => void;
 };
 
-export function DiaryListCard({ items, totalCount, onEdit, onDelete }: DiaryListCardProps) {
+export function DiaryListCard({
+  items,
+  totalCount,
+  resolveTagLabel,
+  onEdit,
+  onDelete,
+}: DiaryListCardProps) {
   const { locale, t } = useI18n();
 
   return (
@@ -56,6 +64,10 @@ export function DiaryListCard({ items, totalCount, onEdit, onDelete }: DiaryList
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600">
                   {entry.content}
                 </p>
+
+                <div className="mt-3">
+                  <TagBadgeList resolveTagLabel={resolveTagLabel} tagIds={entry.tagIds} />
+                </div>
 
                 <p className="mt-4 text-sm text-slate-500">
                   {t("diary.list.updated", { value: formatDiaryUpdatedAt(entry.updatedAt, locale) })}

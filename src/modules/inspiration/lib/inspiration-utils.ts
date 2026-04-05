@@ -1,4 +1,5 @@
 import type { TranslateFn } from "@/core/i18n/types";
+import { normalizeTagIds } from "@/features/tags/lib/tag-utils";
 import type {
   InspirationFavoriteFilter,
   InspirationFilters,
@@ -8,6 +9,7 @@ import type {
 
 export const defaultInspirationFilters: InspirationFilters = {
   query: "",
+  tagId: "all",
   favorite: "all",
   sort: "favorite-desc",
 };
@@ -28,17 +30,19 @@ export function filterInspirations(items: InspirationItem[], filters: Inspiratio
   const normalizedQuery = normalizeInspirationText(filters.query).toLowerCase();
 
   return items.filter((item) => {
+    const tagIds = normalizeTagIds(item.tagIds ?? []);
     const matchesQuery =
       !normalizedQuery ||
       item.title.toLowerCase().includes(normalizedQuery) ||
       item.content.toLowerCase().includes(normalizedQuery);
+    const matchesTag = filters.tagId === "all" || tagIds.includes(filters.tagId);
 
     const matchesFavorite =
       filters.favorite === "all" ||
       (filters.favorite === "favorites" && item.isFavorite) ||
       (filters.favorite === "others" && !item.isFavorite);
 
-    return matchesQuery && matchesFavorite;
+    return matchesQuery && matchesFavorite && matchesTag;
   });
 }
 

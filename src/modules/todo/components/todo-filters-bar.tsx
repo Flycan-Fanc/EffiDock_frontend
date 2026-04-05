@@ -1,4 +1,5 @@
 import { useI18n } from "@/core/i18n/use-i18n";
+import type { TagItem } from "@/features/tags/types/tag";
 import {
   getDueFilterLabel,
   getPriorityFilterLabel,
@@ -15,6 +16,7 @@ import type {
 
 type TodoFiltersBarProps = {
   filters: TodoFilters;
+  availableTags: TagItem[];
   onChange: (patch: Partial<TodoFilters>) => void;
   onReset: () => void;
 };
@@ -24,7 +26,7 @@ const priorityOptions: TodoPriorityFilter[] = ["all", "high", "medium", "low"];
 const dueOptions: TodoDueFilter[] = ["all", "today", "upcoming", "overdue", "none"];
 const sortOptions: TodoSortMode[] = ["created-desc", "due-asc", "priority-desc"];
 
-export function TodoFiltersBar({ filters, onChange, onReset }: TodoFiltersBarProps) {
+export function TodoFiltersBar({ filters, availableTags, onChange, onReset }: TodoFiltersBarProps) {
   const { t } = useI18n();
 
   return (
@@ -47,7 +49,7 @@ export function TodoFiltersBar({ filters, onChange, onReset }: TodoFiltersBarPro
         </button>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr]">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr]">
         <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">{t("todo.filters.search")}</span>
           <input
@@ -86,6 +88,16 @@ export function TodoFiltersBar({ filters, onChange, onReset }: TodoFiltersBarPro
             value: option,
           }))}
           value={filters.due}
+        />
+
+        <SelectField
+          label={t("tags.filter.label")}
+          onChange={(value) => onChange({ tagId: value })}
+          options={[
+            { label: t("tags.filter.all"), value: "all" },
+            ...availableTags.map((tag) => ({ label: `#${tag.label}`, value: tag.id })),
+          ]}
+          value={filters.tagId}
         />
 
         <SelectField

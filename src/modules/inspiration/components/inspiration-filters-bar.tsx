@@ -1,8 +1,6 @@
 import { useI18n } from "@/core/i18n/use-i18n";
-import {
-  getFavoriteFilterLabel,
-  getInspirationSortLabel,
-} from "@/modules/inspiration/lib/inspiration-utils";
+import { getFavoriteFilterLabel, getInspirationSortLabel } from "@/modules/inspiration/lib/inspiration-utils";
+import type { TagItem } from "@/features/tags/types/tag";
 import type {
   InspirationFavoriteFilter,
   InspirationFilters,
@@ -11,6 +9,7 @@ import type {
 
 type InspirationFiltersBarProps = {
   filters: InspirationFilters;
+  availableTags: TagItem[];
   onChange: (patch: Partial<InspirationFilters>) => void;
   onReset: () => void;
 };
@@ -20,6 +19,7 @@ const sortOptions: InspirationSortMode[] = ["favorite-desc", "updated-desc", "cr
 
 export function InspirationFiltersBar({
   filters,
+  availableTags,
   onChange,
   onReset,
 }: InspirationFiltersBarProps) {
@@ -45,7 +45,7 @@ export function InspirationFiltersBar({
         </button>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mt-5 grid gap-4 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <label className="block space-y-2">
           <span className="text-sm font-medium text-slate-700">{t("inspiration.filters.search")}</span>
           <input
@@ -64,6 +64,16 @@ export function InspirationFiltersBar({
             value: option,
           }))}
           value={filters.favorite}
+        />
+
+        <SelectField
+          label={t("tags.filter.label")}
+          onChange={(value) => onChange({ tagId: value })}
+          options={[
+            { label: t("tags.filter.all"), value: "all" },
+            ...availableTags.map((tag) => ({ label: `#${tag.label}`, value: tag.id })),
+          ]}
+          value={filters.tagId}
         />
 
         <SelectField

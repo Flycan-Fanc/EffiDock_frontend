@@ -1,10 +1,11 @@
 const DATABASE_NAME = "effidock-web-mvp";
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 
 export const EFFIDOCK_STORE_NAMES = {
   todo: "todo-items",
   diary: "diary-entries",
   inspiration: "inspiration-items",
+  tags: "tag-items",
 } as const;
 
 function ensureObjectStores(database: IDBDatabase) {

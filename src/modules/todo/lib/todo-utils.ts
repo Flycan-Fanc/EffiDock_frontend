@@ -1,4 +1,5 @@
 import type { SupportedLocale, TranslateFn } from "@/core/i18n/types";
+import { normalizeTagIds } from "@/features/tags/lib/tag-utils";
 import type {
   TodoDueFilter,
   TodoFilters,
@@ -17,6 +18,7 @@ const priorityRank: Record<TodoPriority, number> = {
 
 export const defaultTodoFilters: TodoFilters = {
   query: "",
+  tagId: "all",
   status: "all",
   priority: "all",
   due: "all",
@@ -162,6 +164,8 @@ export function filterTodos(items: TodoItem[], filters: TodoFilters) {
   const today = getTodayDateString();
 
   return items.filter((todo) => {
+    const tagIds = normalizeTagIds(todo.tagIds ?? []);
+
     if (filters.status === "active" && todo.completed) {
       return false;
     }
@@ -187,6 +191,10 @@ export function filterTodos(items: TodoItem[], filters: TodoFilters) {
     }
 
     if (filters.due === "none" && todo.dueDate) {
+      return false;
+    }
+
+    if (filters.tagId !== "all" && !tagIds.includes(filters.tagId)) {
       return false;
     }
 
