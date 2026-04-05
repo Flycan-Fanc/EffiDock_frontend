@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, FormEvent, RefObject } from "react";
 
 import { useI18n } from "@/core/i18n/use-i18n";
 import { Button } from "@/shared/components/ui/button";
@@ -13,6 +13,8 @@ type TodoEditorCardProps = {
   value: TodoFormState;
   submitting: boolean;
   editingTodo?: TodoItem;
+  containerRef?: RefObject<HTMLElement | null>;
+  titleInputRef?: RefObject<HTMLInputElement | null>;
   onChange: (field: keyof TodoFormState, value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel?: () => void;
@@ -25,6 +27,8 @@ export function TodoEditorCard({
   value,
   submitting,
   editingTodo,
+  containerRef,
+  titleInputRef,
   onChange,
   onSubmit,
   onCancel,
@@ -33,7 +37,7 @@ export function TodoEditorCard({
   const isEditMode = mode === "edit";
 
   return (
-    <article className="rounded-[28px] border border-slate-200 bg-white p-6">
+    <article className="rounded-[28px] border border-slate-200 bg-white p-6" ref={containerRef}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -61,6 +65,7 @@ export function TodoEditorCard({
             maxLength={120}
             onChange={(event) => onChange("title", event.target.value)}
             placeholder={t("todo.editor.titlePlaceholder")}
+            ref={titleInputRef}
             value={value.title}
           />
         </label>

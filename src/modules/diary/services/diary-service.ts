@@ -1,4 +1,4 @@
-import type { TodoItem } from "@/modules/todo/types/todo";
+import type { DiaryEntry } from "@/modules/diary/types/diary";
 
 const DATABASE_NAME = "effidock-web-mvp";
 const DATABASE_VERSION = 2;
@@ -15,7 +15,7 @@ function ensureObjectStores(database: IDBDatabase) {
   }
 }
 
-function openTodoDatabase() {
+function openDiaryDatabase() {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = window.indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
 
@@ -28,15 +28,12 @@ function openTodoDatabase() {
   });
 }
 
-async function withStore<T>(
-  mode: IDBTransactionMode,
-  runner: (store: IDBObjectStore) => Promise<T>,
-) {
-  const database = await openTodoDatabase();
+async function withStore<T>(mode: IDBTransactionMode, runner: (store: IDBObjectStore) => Promise<T>) {
+  const database = await openDiaryDatabase();
 
   try {
-    const transaction = database.transaction(TODO_STORE_NAME, mode);
-    const store = transaction.objectStore(TODO_STORE_NAME);
+    const transaction = database.transaction(DIARY_STORE_NAME, mode);
+    const store = transaction.objectStore(DIARY_STORE_NAME);
 
     return await runner(store);
   } finally {
@@ -51,21 +48,21 @@ function promisifyRequest<T>(request: IDBRequest<T>) {
   });
 }
 
-export async function listTodos() {
+export async function listDiaryEntries() {
   return withStore("readonly", async (store) => {
-    const records = await promisifyRequest(store.getAll() as IDBRequest<TodoItem[]>);
+    const records = await promisifyRequest(store.getAll() as IDBRequest<DiaryEntry[]>);
     return records;
   });
 }
 
-export async function saveTodo(todo: TodoItem) {
+export async function saveDiaryEntry(entry: DiaryEntry) {
   return withStore("readwrite", async (store) => {
-    await promisifyRequest(store.put(todo));
+    await promisifyRequest(store.put(entry));
   });
 }
 
-export async function removeTodo(todoId: string) {
+export async function removeDiaryEntry(entryId: string) {
   return withStore("readwrite", async (store) => {
-    await promisifyRequest(store.delete(todoId));
+    await promisifyRequest(store.delete(entryId));
   });
 }

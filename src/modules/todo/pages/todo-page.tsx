@@ -6,6 +6,7 @@ import { TodoFiltersBar } from "@/modules/todo/components/todo-filters-bar";
 import { TodoListCard } from "@/modules/todo/components/todo-list-card";
 import { useTodoStore } from "@/modules/todo/stores/use-todo-store";
 import type { TodoItem } from "@/modules/todo/types/todo";
+import { useScrollToEditor } from "@/shared/hooks/use-scroll-to-editor";
 
 const emptyTodoForm: TodoFormState = {
   title: "",
@@ -36,6 +37,10 @@ export function TodoPage() {
   const [formState, setFormState] = useState<TodoFormState>(emptyTodoForm);
   const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [editScrollTrigger, setEditScrollTrigger] = useState(0);
+  const { containerRef, focusTargetRef } = useScrollToEditor(
+    editingTodo ? `${editingTodo.id}-${editScrollTrigger}` : null,
+  );
 
   useEffect(() => {
     if (!hydrated) {
@@ -78,6 +83,7 @@ export function TodoPage() {
       priority: todo.priority,
       dueDate: todo.dueDate,
     });
+    setEditScrollTrigger((currentValue) => currentValue + 1);
   };
 
   const handleCancelEdit = () => {
@@ -97,12 +103,14 @@ export function TodoPage() {
   return (
     <section className="space-y-6">
       <TodoEditorCard
+        containerRef={containerRef}
         editingTodo={editingTodo ?? undefined}
         mode={editingTodo ? "edit" : "create"}
         onCancel={editingTodo ? handleCancelEdit : undefined}
         onChange={handleFieldChange}
         onSubmit={handleSubmit}
         submitting={submitting}
+        titleInputRef={focusTargetRef}
         value={formState}
       />
 
