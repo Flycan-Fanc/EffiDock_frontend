@@ -1,8 +1,11 @@
+import { useI18n } from "@/core/i18n/use-i18n";
+import { getModuleCopy } from "@/core/modules/copy/module-copy";
 import { getModuleRegistry } from "@/core/modules/registry/module-registry";
 import { useModuleStore } from "@/stores/use-module-store";
 import { Button } from "@/shared/components/ui/button";
 
 export function ModuleStorePage() {
+  const { t } = useI18n();
   const installedModules = useModuleStore((state) => state.installedModules);
   const enabledModules = useModuleStore((state) => state.enabledModules);
   const installModule = useModuleStore((state) => state.installModule);
@@ -14,13 +17,13 @@ export function ModuleStorePage() {
     <section className="space-y-6">
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Module Store
+          {t("moduleStore.badge")}
         </p>
         <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-          模块系统基础设施
+          {t("moduleStore.title")}
         </h2>
         <p className="max-w-2xl text-sm leading-7 text-slate-500">
-          当前页面已接入 manifest、registry 与 module store。这里只提供基础状态切换，完整的模块商店交互将在 Batch 8 进一步完善。
+          {t("moduleStore.description")}
         </p>
       </div>
 
@@ -28,6 +31,7 @@ export function ModuleStorePage() {
         {getModuleRegistry().map((moduleManifest) => {
           const isInstalled = installedModules.includes(moduleManifest.id);
           const isEnabled = enabledModules.includes(moduleManifest.id);
+          const moduleCopy = getModuleCopy(moduleManifest.id, t);
 
           return (
             <article
@@ -36,30 +40,34 @@ export function ModuleStorePage() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-2">
-                  <p className="text-lg font-semibold text-slate-950">{moduleManifest.name}</p>
-                  <p className="text-sm leading-6 text-slate-500">{moduleManifest.description}</p>
+                  <p className="text-lg font-semibold text-slate-950">{moduleCopy.name}</p>
+                  <p className="text-sm leading-6 text-slate-500">{moduleCopy.description}</p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                  {getModuleStatusLabel(isInstalled, isEnabled)}
+                  {getModuleStatusLabel(isInstalled, isEnabled, t)}
                 </span>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {isInstalled ? (
                   <Button variant="outline" onClick={() => uninstallModule(moduleManifest.id)}>
-                    卸载
+                    {t("moduleStore.action.uninstall")}
                   </Button>
                 ) : (
-                  <Button onClick={() => installModule(moduleManifest.id)}>安装</Button>
+                  <Button onClick={() => installModule(moduleManifest.id)}>
+                    {t("moduleStore.action.install")}
+                  </Button>
                 )}
 
                 {isInstalled && !isEnabled ? (
-                  <Button onClick={() => enableModule(moduleManifest.id)}>启用</Button>
+                  <Button onClick={() => enableModule(moduleManifest.id)}>
+                    {t("moduleStore.action.enable")}
+                  </Button>
                 ) : null}
 
                 {isInstalled && isEnabled ? (
                   <Button variant="secondary" onClick={() => disableModule(moduleManifest.id)}>
-                    停用
+                    {t("moduleStore.action.disable")}
                   </Button>
                 ) : null}
               </div>
@@ -71,10 +79,14 @@ export function ModuleStorePage() {
   );
 }
 
-function getModuleStatusLabel(isInstalled: boolean, isEnabled: boolean) {
+function getModuleStatusLabel(
+  isInstalled: boolean,
+  isEnabled: boolean,
+  t: (key: string) => string,
+) {
   if (!isInstalled) {
-    return "Not Installed";
+    return t("moduleStore.status.notInstalled");
   }
 
-  return isEnabled ? "Enabled" : "Installed";
+  return isEnabled ? t("moduleStore.status.enabled") : t("moduleStore.status.installed");
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   BookOpen,
   Box,
@@ -9,31 +10,12 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
+import { useI18n } from "@/core/i18n/use-i18n";
+import { getModuleCopy } from "@/core/modules/copy/module-copy";
 import { getModuleRegistry } from "@/core/modules/registry/module-registry";
 import type { ModuleNavItem } from "@/core/types/module";
 import { useModuleStore } from "@/stores/use-module-store";
 import { cn } from "@/shared/lib/utils";
-
-const fixedNavItems = [
-  {
-    to: "/dashboard",
-    label: "Dashboard",
-    description: "工作台首页概览",
-    icon: LayoutDashboard,
-  },
-  {
-    to: "/modules",
-    label: "模块商店",
-    description: "安装与启用入口",
-    icon: Box,
-  },
-  {
-    to: "/settings",
-    label: "Settings",
-    description: "偏好与配置占位",
-    icon: Settings,
-  },
-];
 
 const moduleIcons: Record<ModuleNavItem["icon"], typeof CheckSquare> = {
   "check-square": CheckSquare,
@@ -43,10 +25,36 @@ const moduleIcons: Record<ModuleNavItem["icon"], typeof CheckSquare> = {
 };
 
 export function ShellSidebar() {
+  const { t } = useI18n();
   const enabledModules = useModuleStore((state) => state.enabledModules);
+
+  const fixedNavItems = [
+    {
+      to: "/dashboard",
+      label: t("sidebar.fixed.dashboard"),
+      description: t("sidebar.fixed.dashboardDescription"),
+      icon: LayoutDashboard,
+    },
+    {
+      to: "/modules",
+      label: t("sidebar.fixed.modules"),
+      description: t("sidebar.fixed.modulesDescription"),
+      icon: Box,
+    },
+    {
+      to: "/settings",
+      label: t("sidebar.fixed.settings"),
+      description: t("sidebar.fixed.settingsDescription"),
+      icon: Settings,
+    },
+  ];
+
   const enabledModuleNavItems = getModuleRegistry()
     .filter((moduleManifest) => enabledModules.includes(moduleManifest.id))
-    .map((moduleManifest) => moduleManifest.nav);
+    .map((moduleManifest) => ({
+      ...moduleManifest.nav,
+      label: getModuleCopy(moduleManifest.id, t).name,
+    }));
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -57,28 +65,32 @@ export function ShellSidebar() {
           </div>
           <div>
             <p className="text-sm font-semibold tracking-wide">EffiDock</p>
-            <p className="text-xs text-slate-300">Personal Productivity Dock</p>
+            <p className="text-xs text-slate-300">{t("sidebar.brandTagline")}</p>
           </div>
         </div>
-        <p className="text-sm leading-6 text-slate-300">
-          Batch 2 已接入模块清单、状态管理和基础路由守卫，侧边栏会根据启用状态动态显示模块入口。
-        </p>
+        <p className="text-sm leading-6 text-slate-300">{t("sidebar.summary")}</p>
       </div>
 
       <nav className="space-y-2">
         {fixedNavItems.map(({ to, label, description, icon: Icon }) => (
-          <NavItem key={to} to={to} label={label} description={description} icon={<Icon className="h-4 w-4" />} />
+          <NavItem
+            key={to}
+            to={to}
+            label={label}
+            description={description}
+            icon={<Icon className="h-4 w-4" />}
+          />
         ))}
       </nav>
 
       <div className="space-y-2">
         <p className="px-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Enabled Modules
+          {t("sidebar.enabledModules")}
         </p>
         <div className="space-y-2">
           {enabledModuleNavItems.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">
-              当前没有启用中的模块，请前往模块商店开启。
+              {t("sidebar.noModules")}
             </div>
           ) : (
             enabledModuleNavItems.map((navItem) => {
@@ -89,7 +101,7 @@ export function ShellSidebar() {
                   key={navItem.to}
                   to={navItem.to}
                   label={navItem.label}
-                  description="模块入口"
+                  description={t("sidebar.moduleEntry")}
                   icon={<Icon className="h-4 w-4" />}
                 />
               );
@@ -100,12 +112,12 @@ export function ShellSidebar() {
 
       <div className="mt-auto rounded-[24px] border border-slate-200 bg-slate-50 p-4">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Current Scope
+          {t("sidebar.currentScope")}
         </p>
         <ul className="mt-3 space-y-2 text-sm text-slate-600">
-          <li>模块 manifest 与 registry</li>
-          <li>模块 install / enable / disable / uninstall</li>
-          <li>根据启用状态动态渲染导航</li>
+          <li>{t("sidebar.scope.manifest")}</li>
+          <li>{t("sidebar.scope.lifecycle")}</li>
+          <li>{t("sidebar.scope.navigation")}</li>
         </ul>
       </div>
     </div>
@@ -116,7 +128,7 @@ type NavItemProps = {
   to: string;
   label: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
 
 function NavItem({ to, label, description, icon }: NavItemProps) {
