@@ -58,7 +58,7 @@ export function ShellSidebar() {
 
   return (
     <div className="flex h-full flex-col gap-6">
-      <div className="rounded-[24px] bg-slate-950 px-4 py-5 text-slate-50">
+      <div className="rounded-[24px] bg-[image:var(--shell-sidebar-panel)] px-4 py-5 text-slate-50">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-sm font-semibold">
             ED

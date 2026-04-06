@@ -14,6 +14,34 @@
   --primary-foreground: 210 40% 98%;
   --muted: 210 24% 95%;
   --muted-foreground: 215 16% 42%;
+  --shell-gradient: linear-gradient(180deg, #f6f8fc 0%, #e7edf6 48%, #dde6f1 100%);
+  --shell-sidebar-bg: rgba(248, 250, 252, 0.78);
+  --shell-header-bg: rgba(255, 255, 255, 0.68);
+  --shell-main-bg: rgba(255, 255, 255, 0.9);
+  --shell-chrome-border: rgba(214, 223, 235, 0.92);
+  --shell-chrome-shadow: 0 20px 64px rgba(15, 23, 42, 0.08);
+  --shell-sidebar-panel: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+:root[data-theme="dark"] {
+  --background: 220 30% 8%;
+  --foreground: 210 25% 96%;
+  --card: 220 24% 12%;
+  --card-foreground: 210 25% 96%;
+  --border: 218 20% 24%;
+  --input: 218 20% 24%;
+  --ring: 214 30% 78%;
+  --primary: 210 40% 96%;
+  --primary-foreground: 222 30% 10%;
+  --muted: 221 22% 15%;
+  --muted-foreground: 213 18% 78%;
+  --shell-gradient: linear-gradient(180deg, #050b16 0%, #08111f 34%, #0d1728 68%, #121c2f 100%);
+  --shell-sidebar-bg: rgba(8, 15, 29, 0.88);
+  --shell-header-bg: rgba(14, 23, 38, 0.76);
+  --shell-main-bg: rgba(17, 27, 45, 0.9);
+  --shell-chrome-border: rgba(70, 87, 116, 0.74);
+  --shell-chrome-shadow: 0 28px 84px rgba(2, 6, 23, 0.52);
+  --shell-sidebar-panel: linear-gradient(180deg, #020617 0%, #0f172a 52%, #172554 100%);
 }
 
 * {
@@ -27,6 +55,113 @@ html {
 body {
   @apply bg-background text-foreground antialiased;
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+:root .bg-white {
+  background-color: rgb(255 255 255 / 0.94);
+}
+
+:root .bg-slate-50 {
+  background-color: rgb(241 245 249 / 0.82);
+}
+
+:root .bg-slate-100 {
+  background-color: rgb(226 232 240 / 0.88);
+}
+
+:root .border-slate-200 {
+  border-color: rgb(203 213 225 / 0.92);
+}
+
+:root[data-theme="dark"] .bg-white {
+  background-color: rgb(20 30 48 / 0.96);
+}
+
+:root[data-theme="dark"] .bg-slate-50 {
+  background-color: rgb(14 22 36 / 0.92);
+}
+
+:root[data-theme="dark"] .bg-slate-100 {
+  background-color: rgb(29 41 61 / 0.98);
+}
+
+:root[data-theme="dark"] .bg-slate-950 {
+  background-image: linear-gradient(180deg, #020617 0%, #0f172a 58%, #172554 100%);
+  background-color: rgb(2 6 23 / 1);
+}
+
+:root[data-theme="dark"] .bg-white\/5 {
+  background-color: rgb(148 163 184 / 0.1);
+}
+
+:root[data-theme="dark"] .border-slate-200,
+:root[data-theme="dark"] .border-slate-300 {
+  border-color: rgb(71 85 105 / 0.88);
+}
+
+:root[data-theme="dark"] .border-dashed.border-slate-200 {
+  border-color: rgb(71 85 105 / 1);
+}
+
+:root[data-theme="dark"] .text-slate-950,
+:root[data-theme="dark"] .text-slate-900 {
+  color: rgb(248 250 252 / 1);
+}
+
+:root[data-theme="dark"] .text-slate-800,
+:root[data-theme="dark"] .text-slate-700,
+:root[data-theme="dark"] .text-slate-600 {
+  color: rgb(217 228 244 / 1);
+}
+
+:root[data-theme="dark"] .text-slate-500,
+:root[data-theme="dark"] .text-slate-400,
+:root[data-theme="dark"] .text-slate-300 {
+  color: rgb(164 183 209 / 1);
+}
+
+:root[data-theme="dark"] .text-white {
+  color: rgb(248 250 252 / 1);
+}
+
+:root[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: rgb(30 41 59 / 0.96);
+}
+
+:root[data-theme="dark"] .hover\:border-slate-300:hover {
+  border-color: rgb(148 163 184 / 0.9);
+}
+
+:root[data-theme="dark"] .bg-emerald-50 {
+  background-color: rgb(6 78 59 / 0.28);
+}
+
+:root[data-theme="dark"] .text-emerald-700 {
+  color: rgb(110 231 183 / 1);
+}
+
+:root[data-theme="dark"] .border-emerald-200 {
+  border-color: rgb(6 95 70 / 1);
+}
+
+:root[data-theme="dark"] .bg-rose-50 {
+  background-color: rgb(76 5 25 / 0.3);
+}
+
+:root[data-theme="dark"] .text-rose-700 {
+  color: rgb(253 164 175 / 1);
+}
+
+:root[data-theme="dark"] .border-rose-200 {
+  border-color: rgb(159 18 57 / 1);
+}
+
+:root[data-theme="dark"] .bg-amber-100 {
+  background-color: rgb(120 53 15 / 0.35);
+}
+
+:root[data-theme="dark"] .text-amber-700 {
+  color: rgb(253 224 71 / 1);
 }
 
 a {

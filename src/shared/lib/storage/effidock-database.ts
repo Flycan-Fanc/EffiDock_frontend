@@ -52,3 +52,20 @@ export function promisifyRequest<T>(request: IDBRequest<T>) {
     request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed."));
   });
 }
+
+export async function listEffiDockStoreRecords<T>(storeName: string) {
+  return withEffiDockStore(storeName, "readonly", async (store) => {
+    return promisifyRequest(store.getAll() as IDBRequest<T[]>);
+  });
+}
+
+export async function replaceEffiDockStoreRecords<T extends { id: string }>(
+  storeName: string,
+  records: T[],
+) {
+  return withEffiDockStore(storeName, "readwrite", async (store) => {
+    await promisifyRequest(store.clear());
+
+    await Promise.all(records.map((record) => promisifyRequest(store.put(record))));
+  });
+}

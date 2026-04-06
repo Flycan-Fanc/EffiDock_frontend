@@ -167,22 +167,22 @@ function ModuleCard({
 
   return (
     <article className="overflow-hidden rounded-[28px] border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-4">
+      <div className="border-b border-slate-100 bg-[#0f1625] px-5 py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-slate-100 shadow-sm ring-1 ring-white/10">
               <Icon className="h-5 w-5" />
             </span>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-lg font-semibold text-slate-950">{name}</p>
+                <p className="text-lg font-semibold text-white">{name}</p>
                 <StatusBadge isInstalled={isInstalled} isEnabled={isEnabled} />
               </div>
-              <p className="text-sm leading-6 text-slate-500">{description}</p>
+              <p className="text-sm leading-6 text-slate-300">{description}</p>
             </div>
           </div>
 
-          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
             {getCategoryLabel(manifest.category, t)}
           </span>
         </div>
