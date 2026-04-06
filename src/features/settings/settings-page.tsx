@@ -14,6 +14,7 @@ import { useTodoStore } from "@/modules/todo/stores/use-todo-store";
 import { useAppStore } from "@/stores/use-app-store";
 import { useModuleStore } from "@/stores/use-module-store";
 import { Button } from "@/shared/components/ui/button";
+import { useConfirmDialog } from "@/shared/hooks/use-confirm-dialog";
 
 const localeOptions: LocalePreference[] = ["system", "zh-CN", "en-US", "ja-JP"];
 const themeOptions = ["system", "light", "dark"] as const;
@@ -29,6 +30,7 @@ export function SettingsPage() {
   const removeTodoTag = useTodoStore((state) => state.removeTag);
   const removeDiaryTag = useDiaryStore((state) => state.removeTag);
   const removeInspirationTag = useInspirationStore((state) => state.removeTag);
+  const { confirm } = useConfirmDialog();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [dataMessage, setDataMessage] = useState<string | null>(null);
   const [dataError, setDataError] = useState<string | null>(null);
@@ -56,7 +58,13 @@ export function SettingsPage() {
       return;
     }
 
-    if (!window.confirm(t("settings.data.importConfirm"))) {
+    const confirmed = await confirm({
+      title: t("settings.data.importConfirmTitle"),
+      description: t("settings.data.importConfirm"),
+      confirmVariant: "danger",
+    });
+
+    if (!confirmed) {
       return;
     }
 

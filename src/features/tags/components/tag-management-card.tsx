@@ -4,6 +4,7 @@ import { PencilLine, Trash2 } from "lucide-react";
 import { useI18n } from "@/core/i18n/use-i18n";
 import { useTagStore } from "@/features/tags/stores/use-tag-store";
 import { Button } from "@/shared/components/ui/button";
+import { useConfirmDialog } from "@/shared/hooks/use-confirm-dialog";
 
 type TagManagementCardProps = {
   onDeleteTag?: (tagId: string) => void | Promise<void>;
@@ -11,6 +12,7 @@ type TagManagementCardProps = {
 
 export function TagManagementCard({ onDeleteTag }: TagManagementCardProps) {
   const { t } = useI18n();
+  const { confirm } = useConfirmDialog();
   const {
     items,
     hydrated,
@@ -41,11 +43,13 @@ export function TagManagementCard({ onDeleteTag }: TagManagementCardProps) {
   };
 
   const handleDelete = async (tagId: string) => {
-    const confirmed = window.confirm(
-      t("settings.tags.deleteConfirm", {
+    const confirmed = await confirm({
+      title: t("settings.tags.deleteConfirmTitle"),
+      description: t("settings.tags.deleteConfirm", {
         label: getTagLabel(tagId),
       }),
-    );
+      confirmVariant: "danger",
+    });
 
     if (!confirmed) {
       return;
